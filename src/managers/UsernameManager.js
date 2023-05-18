@@ -1,27 +1,39 @@
 const axios = require('axios').default;
-
+// added cache results incase the same usernames are constantly being searched for. less network requests
 class UsernameManager {
+    constructor() {
+        this.cache = new Map();
+    }
+
     async usernameTaken(username) {
+        if (this.cache.has(username)) {
+            return this.cache.get(username);
+        }
+
         try {
             const response = await axios.get('https://pomelo-check.onrender.com/list');
             const { taken, invalid } = response.data.data;
 
-            if (taken.includes(username)) {
-                return true;
-            } else if (invalid.includes(username)) {
-                return true;
-            } else {
-                return false;
-            }
+            const isTaken = taken.includes(username) || invalid.includes(username);
+            this.cache.set(username, isTaken);
+
+            return isTaken;
         } catch (error) {
-            console.error('Error retrieving data:', error);
-            return true;
+            throw new Error('Error retrieving data: ' + error);
         }
     }
 
     async usernameValid(username) {
         const validCharsRegex = /^[a-z0-9_.]+$/i;
         return validCharsRegex.test(username);
+    }
+
+    async checkUsername(username) {
+        if (!this.usernameValid(username)) {
+            throw new Error('Invalid username');
+        }
+        
+        return this.usernameTaken(username);
     }
 }
 

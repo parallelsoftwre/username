@@ -7,7 +7,7 @@ module.exports = class ConfigCommand extends Command {
     constructor() {
         super({
             name: 'username',
-            description: 'Base username checker cmd',
+            description: 'Base username checker command.',
             options: [
                 {
                     name: 'check',
@@ -64,8 +64,6 @@ module.exports = class ConfigCommand extends Command {
                     }
                 } catch (error) {
                     console.log(error);
-
-                    interaction.followUp({ embeds: [failMessage] });
                 }
                 break;
             }
