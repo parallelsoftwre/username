@@ -2,6 +2,25 @@ const Command = require('../structures/Command');
 const active = new Map();
 const axios = require('axios').default;
 const UsernameManager = require('../managers/UsernameManager');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
+
+Command.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
+
+    
+    if (interaction.customId === 'username_guide') {
+        
+        await interaction.reply({
+            content: `**Restrictions for new usernames**
+            • Usernames must be at least 2 characters and at most 32 characters long
+            • Usernames are case insensitive and forced lowercase
+            • Usernames cannot use any other special characters besides underscore ( _ ) and period ( . )
+            • Usernames cannot use 2 consecutive period characters ( . )
+            • Usernames must abide by Discord ToS`,
+            ephemeral: true
+        });
+    }
+});
 
 module.exports = class ConfigCommand extends Command {
     constructor() {
@@ -31,21 +50,30 @@ module.exports = class ConfigCommand extends Command {
         });
     }
 
-    async run(interaction, res) {
-        switch (interaction.data.options[0].name) {
-            case 'check': {
-                try {
-                    const username = interaction.data.options[0].options[0].value;
-                    const manager = new UsernameManager();
-                    const valid = await manager.usernameValid(username);
+async run(interaction, res) {
+    switch (interaction.data.options[0].name) {
+        case 'check': {
+            try {
+                const username = interaction.data.options[0].options[0].value;
+                const manager = new UsernameManager();
+                const valid = await manager.usernameValid(username);
 
-                    if (!valid) {
-                        const unavailableEmbed = {
-                            description: `<:taken:1108555017838923786> The username \`\`${username}\`\` contains invalid characters. Use \`\`/username guide\`\` for a guide to creating a username.`,
-                            color: 15548997,
-                        };
-                        return interaction.followUp({ embeds: [unavailableEmbed] });
-                    }
+                if (!valid) {
+                    const unavailableEmbed = {
+                        description: `<:taken:1108555017838923786> The username \`\`${username}\`\` contains invalid characters. Use \`\`/username guide\`\` for a guide to creating a username.`,
+                        color: 15548997,
+                    };
+
+                    const guideButton = new ButtonBuilder()
+                        .setCustomId('username_guide')
+                        .setLabel('Guide')
+                        .setStyle(ButtonStyle.Primary);
+
+                    const row = new ButtonBuilder()
+                        .addComponents(guideButton);
+
+                    return interaction.followUp({ embeds: [unavailableEmbed], components: [row] });
+                }
 
                     const response = await manager.usernameTaken(username);
 
