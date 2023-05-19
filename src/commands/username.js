@@ -4,23 +4,6 @@ const axios = require('axios').default;
 const UsernameManager = require('../managers/UsernameManager');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
 
-Command.on('interactionCreate', async (interaction) => {
-    if (!interaction.isButton()) return;
-
-    
-    if (interaction.customId === 'username_guide') {
-        
-        await interaction.reply({
-            content: `**Restrictions for new usernames**
-            • Usernames must be at least 2 characters and at most 32 characters long
-            • Usernames are case insensitive and forced lowercase
-            • Usernames cannot use any other special characters besides underscore ( _ ) and period ( . )
-            • Usernames cannot use 2 consecutive period characters ( . )
-            • Usernames must abide by Discord ToS`,
-            ephemeral: true
-        });
-    }
-});
 
 module.exports = class ConfigCommand extends Command {
     constructor() {
@@ -64,15 +47,7 @@ async run(interaction, res) {
                         color: 15548997,
                     };
 
-                    const guideButton = new ButtonBuilder()
-                        .setCustomId('username_guide')
-                        .setLabel('Guide')
-                        .setStyle(ButtonStyle.Primary);
-
-                    const row = new ButtonBuilder()
-                        .addComponents(guideButton);
-
-                    return interaction.followUp({ embeds: [unavailableEmbed], components: [row] });
+                    return interaction.followUp({ embeds: [unavailableEmbed] });
                 }
 
                     const response = await manager.usernameTaken(username);
