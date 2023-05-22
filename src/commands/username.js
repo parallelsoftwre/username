@@ -2,14 +2,12 @@ const Command = require('../structures/Command');
 const active = new Map();
 const axios = require('axios').default;
 const UsernameManager = require('../managers/UsernameManager');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js')
-
 
 module.exports = class ConfigCommand extends Command {
     constructor() {
         super({
             name: 'username',
-            description: 'Base username checker command.',
+            description: 'Base username checker cmd',
             options: [
                 {
                     name: 'check',
@@ -33,22 +31,21 @@ module.exports = class ConfigCommand extends Command {
         });
     }
 
-async run(interaction, res) {
-    switch (interaction.data.options[0].name) {
-        case 'check': {
-            try {
-                const username = interaction.data.options[0].options[0].value;
-                const manager = new UsernameManager();
-                const valid = await manager.usernameValid(username);
+    async run(interaction, res) {
+        switch (interaction.data.options[0].name) {
+            case 'check': {
+                try {
+                    const username = interaction.data.options[0].options[0].value;
+                    const manager = new UsernameManager();
+                    const valid = await manager.usernameValid(username);
 
-                if (!valid) {
-                    const unavailableEmbed = {
-                        description: `<:taken:1108555017838923786> The username \`\`${username}\`\` contains invalid characters. Use \`\`/username guide\`\` for a guide to creating a username.`,
-                        color: 15548997,
-                    };
-
-                    return interaction.followUp({ embeds: [unavailableEmbed] });
-                }
+                    if (!valid) {
+                        const unavailableEmbed = {
+                            description: `<:taken:1108555017838923786> The username \`\`${username}\`\` contains invalid characters. Use \`\`/username guide\`\` for a guide to creating a username.`,
+                            color: 15548997,
+                        };
+                        return interaction.followUp({ embeds: [unavailableEmbed] });
+                    }
 
                     const response = await manager.usernameTaken(username);
 
@@ -67,6 +64,8 @@ async run(interaction, res) {
                     }
                 } catch (error) {
                     console.log(error);
+
+                    interaction.followUp({ embeds: [failMessage] });
                 }
                 break;
             }
