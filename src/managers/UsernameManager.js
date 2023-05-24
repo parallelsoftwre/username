@@ -42,14 +42,6 @@ class UsernameManager {
 
         return this.usernameTaken(username);
     }
-
-    async checkUsername(username) {
-        if (!this.usernameValid(username)) {
-            throw new Error('Invalid username');
-        }
-        
-        return this.usernameTaken(username);
-    }
 }
 
 module.exports = UsernameManager;
